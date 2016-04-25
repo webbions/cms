@@ -1,33 +1,33 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Page extends MY_Controller {
+class Slider extends MY_Controller {
 
 	protected $layout = 'admin_default';
 
 	function __construct() {
 		parent::__construct();
 		$this->ensure_group(['admin']);
-		$this->load->model(['InvitationsModel']);
-		$this->load->helper('url');
+		$this->load->model(['AdminCmspageModel']);
+
 	}
 
 	public function index() {
 		$data = [];
-		$data['page_title'] = 'Pre-Registrations';
-		$data['page_header'] = 'Pre-Registrations';
-		$this->template->load($this->layout, 'admin/pregistrations/index', $data);
+		$data['page_title'] = 'CMS Pages';
+		$data['page_header'] = 'CMS Pages';
+		$this->template->load($this->layout, 'admin/page/index', $data);
 	}
 
-	public function get_ajax_page_listing(){
+	public function get_ajax_page_listing() {
 		/* Array of database columns which should be read and sent back to DataTables. Use a space where
 			         * you want to insert a non-database field (for example a counter or static image)
 		*/
-		$aColumns = array('id', 'first_name', 'last_name','company_name','email','status', 'created_at');
+		$aColumns = array('id', 'title', 'status', 'created_at');
 
 		//$extraColumns = array('name_id', 'category_name');
 
 		// DB table to use
-		$sTable = 'invitations';
+		$sTable = 'cmspages';
 		//
 		$iDisplayStart = $this->input->post('iDisplayStart', true);
 		$iDisplayLength = $this->input->post('iDisplayLength', true);
@@ -55,10 +55,10 @@ class Page extends MY_Controller {
 		}
 
 		/*
-         * Filtering
-         * NOTE this does not match the built-in DataTables filtering which does it
-         * word by word on any field. It's possible to do here, but concerned about efficiency
-         * on very large tables, and MySQL's regex functionality is very limited
+			         * Filtering
+			         * NOTE this does not match the built-in DataTables filtering which does it
+			         * word by word on any field. It's possible to do here, but concerned about efficiency
+			         * on very large tables, and MySQL's regex functionality is very limited
 		*/
 
 		for ($i = 0; $i < count($aColumns); $i++) {
@@ -109,11 +109,11 @@ class Page extends MY_Controller {
 		}
 
 		/*
-          // Clear any existing output (optional)
-          ob_clean();
-          echo $this->db->last_query();
-          // Stop PHP from doing anything else (optional)
-          exit();
+			          // Clear any existing output (optional)
+			          ob_clean();
+			          echo $this->db->last_query();
+			          // Stop PHP from doing anything else (optional)
+			          exit();
 		*/
 
 		// Data set length after filtering
@@ -148,9 +148,9 @@ class Page extends MY_Controller {
 				} else if ($col == 'status') {
 					$status = "";
 					if ($aRow[$col] == '1') {
-						$status = $status . '<span class="label btn-success">Accepted</span>';
+						$status = $status . '<span class="label btn-success">Active</span>';
 					} else {
-						$status = $status . '<span class="label btn-warning">Invite Sent</span>';
+						$status = $status . '<span class="label btn-danger">Inactive</span>';
 					}
 					$row[] = $status;
 				} else {
@@ -158,114 +158,106 @@ class Page extends MY_Controller {
 					$row[] = $aRow[$col];
 				}
 			}
-			$url = base_url() . 'admin/category/edit/' . $aRow["id"];
+			$url = base_url() . 'admin/page/edit/' . $aRow["id"];
+
 			$row[] = '<td>'
-			. '<div class="row"><div class="col-sm-9">'
+			. '<a class="btn btn-primary btn-flat" href="' . $url . '"> <i class="fa fa-pencil"></i>Edit </a> '
 			. '<a class="btn btn-danger btn-flat deletebtn deleteLinkButton" data-target="#delete_confirm" data-toggle="modal" value="' . $aRow["id"] . '" id="' . $aRow["id"] . '"> Delete </a>'
 			. '<span id="anchor_' . $aRow["id"] . '" style="display:none;">'
-			. '<a href="' . base_url() . 'admin/pregistration/delete/' . $aRow["id"] . '" class="btn btn-default">Delete</a>'
-			. '</span>'
-			. '</div>'
-			. '</td>';
+			. '<a href="' . base_url() . 'admin/page/delete/' . $aRow["id"] . '" class="btn btn-default">Delete</a>'
+				. '</span>'
+				. '</td>';
+
 			$output['aaData'][] = $row;
 		}
 
 		echo json_encode($output);
-		die;	
+		die;
 	}
 
-	public function emailtest(){
-		$emailData['first_name'] = "Mrudul Shah"; 
-		$body = $this->load->view('/emails/invite_template',$emailData,TRUE);
-
-		/*Send email*/
-		$this->load->library('email');
-
-		//pr($this->email);die;
-
-		$this->email->from('mrudul@webbions.com', 'Talentslist');
-		$this->email->to("mrudul.ce@gmail.com");
-		$this->email->subject('Talentslist Invitation');
-		$this->email->message($body);
-		$result = $this->email->send();
-
-		var_dump($result); echo '<br />';
-		echo $this->email->print_debugger();die;
-	}
-
-	public function add(){
+	public function add() {
 		$data = [];
+		$data['page_title'] = 'Add Page';
+		$data['page_header'] = 'Add Page';
 
-		$this->form_validation->set_rules('first_name', 'First Name', 'required|trim');
-		$this->form_validation->set_rules('last_name', 'Parent Category', 'required|trim');
-		$this->form_validation->set_rules('company_name', 'Company Name', 'required|trim');
-		$this->form_validation->set_rules('email', 'Email', 'is_unique[invitations.email]required|trim');
-		
+		$data['allPageDetail'] = $this->AdminCmspageModel->gets();
+
 		if ($this->input->server('REQUEST_METHOD') == 'POST') {
 			/*Validation part*/
+			$this->form_validation->set_rules('title', 'Page Title', 'required|trim');
+			$this->form_validation->set_rules('content', 'Page Content', 'required|trim');
+
 			if ($this->form_validation->run() == TRUE) {
 
-				$data = $this->input->post();
-				$data['created_at'] = date('Y-m-d H:i:s');
-				$data['status'] = 0;
-				unset($data['submit']);
+				$insertData['title'] = $this->input->post('title');
+				$insertData['slug'] = $this->input->post('slug');
+				$insertData['content'] = $this->input->post('content');
+				$insertData['status'] = $this->input->post('status');
+				$insertData['created_at'] = date('Y-m-d h:i:s');
 
-				if ($this->InvitationsModel->insert($data)) {
-
-					$email = $this->input->post('email');
-					$emailData = []; 
-					$emailData['name'] = $data['first_name']." ".$data['last_name']; 
-					$emailData['id'] = base64_encode($email); 
-
-					$body = $this->load->view('/emails/new_invitation',$emailData,TRUE);
-
-					/*Send email*/
-					$this->load->library('email');
-
-					$this->email->from('donotreply@talentslist.com', 'Talentslist');
-					$this->email->to($email);
-					$this->email->subject('Talentslist Invitation');
-					$this->email->message($body);
-					$result = $this->email->send();
-
-					/*$result = $this->email
-						->from('webbionstest@gmail.com', 'Talentslist')
-						->to($email)
-						->subject('Talentslist Invitation')
-						->message($body)
-						->send();*/
-
-					/*var_dump($result); echo '<br />';
-   					echo $this->email->print_debugger();die;*/
-   					if(!$result){
-   						$this->session->set_flashdata('error', 'Email Send Failed');
-						$this->data['success'] = false;
-   					}else{
-
-						$this->data['errors'] = [];
-						$this->data['success'] = true;
-						$this->session->set_flashdata('success', 'Invitation send successfully');
-   					}
+				$q = $this->AdminCmspageModel->count(['slug' => $this->input->post('slug')]);
+				if ($q > 0) {
+					$this->session->set_flashdata('errors', 'Duplicate Page Is Not Valid.');
 				} else {
-					$this->session->set_flashdata('success', 'Invitation was not sent successfully');
-					$this->data['success'] = false;
+
+					$this->AdminCmspageModel->insert($insertData);
+					$this->session->set_flashdata('success', 'Page added successfully.');
+					redirect(base_url() . 'admin/page/index');exit;
 				}
 			} else {
 
-				$this->data['errors'] = $this->form_validation->error_array();
-				$this->data['success'] = false;
+				$this->session->set_flashdata('errors', validation_errors());
+				redirect(base_url() . 'admin/page/add');exit;
+
 			}
-			$this->_render_json();
+		}
+
+		$this->template->load($this->layout, 'admin/page/add', $data);
+	}
+
+	public function edit($id = NULL) {
+		$data['page_title'] = 'CMS Pages';
+		$data['page_header'] = 'CMS Pages';
+
+		$data['result'] = $this->AdminCmspageModel->get(['id' => $id]);
+		$this->template->load($this->layout, 'admin/page/edit', $data);
+
+//	if ($this->input->server('REQUEST_METHOD') == 'POST') {
+		if ($this->input->server('REQUEST_METHOD') == 'POST') {
+
+			$this->form_validation->set_rules('title', 'Page Title', 'required|trim');
+			$this->form_validation->set_rules('content', 'Page Content', 'required|trim');
+
+			if ($this->form_validation->run() == TRUE) {
+
+				$data = array(
+					'title' => $this->input->post('title'),
+					'slug' => $this->input->post('slug'),
+					'content' => $this->input->post('content'),
+					'status' => $this->input->post('status'),
+					'updated_at' => date('Y-m-d h:i:s'),
+				);
+				$this->AdminCmspageModel->update(['id' => $this->input->post('id')], $data);
+				$this->session->set_flashdata('success', 'Page Update successfully.');
+				redirect(base_url() . 'admin/page/index');exit;
+
+			} else {
+
+				$this->session->set_flashdata('errors', validation_errors());
+				redirect(base_url() . 'admin/page/edit');exit;
+
+			}
 
 		}
 
 	}
 
 	public function delete($id = NULL) {
-		$this->InvitationsModel->delete(['id' => $id]);
-		$this->session->set_flashdata('success', 'Invitation deleted Successfully');
-		redirect(base_url() . 'admin/pregistration/index');exit;
+		$data['DeleteCmspage'] = $this->AdminCmspageModel->get(['id' => $id]);
+
+		$this->AdminCmspageModel->delete(['id' => $id]);
+		$this->session->set_flashdata('success', 'Page deleted Successfully');
+		redirect(base_url() . 'admin/page/index');exit;
 
 	}
-
 }

@@ -1,6 +1,6 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Page extends MY_Controller {
+class Product extends MY_Controller {
 
 	protected $layout = 'admin_default';
 
