@@ -16,3 +16,12 @@ DEBUG -- 127.0.0.1 -- 2016-04-25T16:10:47+05:30 -- Hybrid_Auth initialize. dump 
 DEBUG -- 127.0.0.1 -- 2016-04-25T16:10:47+05:30 -- Hybrid_Auth initialize. dump current session:  -- 
 INFO -- 127.0.0.1 -- 2016-04-25T16:10:47+05:30 -- Hybrid_Auth initialize: check if any error is stored on the endpoint...
 INFO -- 127.0.0.1 -- 2016-04-25T16:10:47+05:30 -- Hybrid_Auth initialize: no error found. initialization succeed.
+INFO -- ::1 -- 2016-04-25T17:46:12+05:30 -- Enter Hybrid_Auth::initialize()
+INFO -- ::1 -- 2016-04-25T17:46:12+05:30 -- Hybrid_Auth::initialize(). PHP version: 5.6.18
+INFO -- ::1 -- 2016-04-25T17:46:12+05:30 -- Hybrid_Auth::initialize(). Hybrid_Auth version: 2.4.0-dev
+INFO -- ::1 -- 2016-04-25T17:46:12+05:30 -- Hybrid_Auth::initialize(). Hybrid_Auth called from: http://localhost/cmsclone/
+INFO -- ::1 -- 2016-04-25T17:46:12+05:30 -- PHP session.name diff from default PHPSESSID. http://php.net/manual/en/session.configuration.php#ini.session.name.
+DEBUG -- ::1 -- 2016-04-25T17:46:12+05:30 -- Hybrid_Auth initialize. dump used config:  -- a:8:{s:8:"base_url";s:50:"http://localhost/cmsclone/index.php/south/endpoint";s:9:"providers";a:2:{s:8:"Facebook";a:2:{s:7:"enabled";b:1;s:4:"keys";a:2:{s:2:"id";s:16:"1696109153983041";s:6:"secret";s:32:"80b40836712dffbd1a95fd069867dc2c";}}s:8:"LinkedIn";a:2:{s:7:"enabled";b:1;s:4:"keys";a:2:{s:3:"key";s:14:"75py2x06hl4n2r";s:6:"secret";s:16:"2kO5VcnVuCtcs2LY";}}}s:10:"debug_mode";b:1;s:10:"debug_file";s:53:"D:\websites\cmsclone\application\/logs/hybridauth.log";s:9:"path_base";s:63:"D:\websites\cmsclone\application\third_party\hybridauth\Hybrid/";s:14:"path_libraries";s:74:"D:\websites\cmsclone\application\third_party\hybridauth\Hybrid/thirdparty/";s:14:"path_resources";s:73:"D:\websites\cmsclone\application\third_party\hybridauth\Hybrid/resources/";s:14:"path_providers";s:73:"D:\websites\cmsclone\application\third_party\hybridauth\Hybrid/Providers/";}
+DEBUG -- ::1 -- 2016-04-25T17:46:12+05:30 -- Hybrid_Auth initialize. dump current session:  -- 
+INFO -- ::1 -- 2016-04-25T17:46:12+05:30 -- Hybrid_Auth initialize: check if any error is stored on the endpoint...
+INFO -- ::1 -- 2016-04-25T17:46:12+05:30 -- Hybrid_Auth initialize: no error found. initialization succeed.
